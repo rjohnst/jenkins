@@ -39,4 +39,33 @@ public class EnvVarsTest extends TestCase {
         assertTrue(ev.containsKey("PATH"));
         assertEquals("A:B:C",ev.get("PATH"));
     }
+
+    /**
+     * Ensure calls to overrideAll(Map<String,String>) maintains current
+     * behaviour of removing keys from the env vars when the provided value is
+     * empty
+     */
+    public void testOverrideAllRemovesEmptyEntries() {
+        EnvVars ev = new EnvVars(Collections.singletonMap("emptyString","value"));
+        ev.overrideAll(Collections.singletonMap("emptyString",""));
+        assertFalse(ev.containsKey("emptyString"));
+
+        ev = new EnvVars(Collections.singletonMap("nullValue","value"));
+        ev.overrideAll(Collections.singletonMap("nullValue",(String)null));
+        assertFalse(ev.containsKey("nullValue"));
+    }
+
+    /**
+     * Ensure calls to overrideAllRetainEmpty(Map<String,String>) does not
+     * remove keys from the env vars when the provided value is empty
+     */
+    public void testOverrideAllRetainEmptyDoesNotRemovesEmptyEntries() {
+        EnvVars ev = new EnvVars(Collections.singletonMap("emptyString","value"));
+        ev.overrideAllRetainEmpty(Collections.singletonMap("emptyString",""));
+        assertTrue(ev.containsKey("emptyString"));
+
+        ev = new EnvVars(Collections.singletonMap("nullValue","value"));
+        ev.overrideAllRetainEmpty(Collections.singletonMap("nullValue",(String)null));
+        assertTrue(ev.containsKey("nullValue"));
+    }
 }

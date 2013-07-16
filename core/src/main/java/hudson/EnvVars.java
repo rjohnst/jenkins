@@ -106,13 +106,22 @@ public class EnvVars extends TreeMap<String,String> {
     }
 
     /**
-     * Overrides the current entry by the given entry.
+     * Overrides the current entry by the given entry. If the given entry's value is empty, the entry will be removed.
      *
      * <p>
      * Handles <tt>PATH+XYZ</tt> notation.
      */
     public void override(String key, String value) {
-        if(value==null || value.length()==0) {
+        override(key, value, true);
+    }
+
+    /**
+     * Overrides the current entry by the given entry. If the given entry's value is empty, the entry will be retained.
+     *
+     * <p>Handles <tt>PATH+XYZ</tt> notation.</p>
+     */
+    private void override(String key, String value, boolean stripEmpty) {
+        if(stripEmpty && (value==null || value.length()==0)) {
             remove(key);
             return;
         }
@@ -137,13 +146,28 @@ public class EnvVars extends TreeMap<String,String> {
     }
 
     /**
-     * Overrides all values in the map by the given map.
+     * Overrides all values in the map by the given map, removing any entries with empty values.
      * See {@link #override(String, String)}.
      * @return this
      */
     public EnvVars overrideAll(Map<String,String> all) {
         for (Map.Entry<String, String> e : all.entrySet()) {
             override(e.getKey(),e.getValue());
+        }
+        return this;
+    }
+
+    /**
+     * Overrides all values in the map by the given map, retaining any entries with empty values.
+     *
+     * <p>This is a fix for JENKINS-10045.</p>
+     *
+     * See {@link #override(String, String, boolean)}
+     * @return this
+     */
+    public EnvVars overrideAllRetainEmpty(Map<String,String> all) {
+        for (Map.Entry<String, String> e : all.entrySet()) {
+            override(e.getKey(), e.getValue(), false);
         }
         return this;
     }
